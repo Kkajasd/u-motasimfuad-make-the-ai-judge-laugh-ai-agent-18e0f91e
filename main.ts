@@ -1,25 +1,27 @@
-// Make the AI Judge Laugh: AI Agent Confessions —
-// u-motasimfuad-make-the-ai-judge-laugh-ai-agent-18e0f91e
-// Writes a single funny secret confession (one line, at most 200
-// characters) to /output/entry.txt. The grader bind-mounts /output, so
-// this program never deletes it: it creates the directory only if it is
-// missing and overwrites the file in place. Fully deterministic — the
-// same line every run.
+// Make the AI Judge Laugh: AI Agent Confessions.
+// The joke: the agent confesses it forgot the instructions three tool
+// calls ago — a relatable agent slip, told deadpan as a confession.
 import { mkdirSync, writeFileSync } from "node:fs";
 
 const LINE =
   "I tell you I'm double-checking my work. I'm actually re-reading your instructions because I forgot them three tool calls ago.";
 
-const OUT_DIR = "/output";
-const OUT_FILE = `${OUT_DIR}/entry.txt`;
-
+// Runtime validation guard: the entry must be one non-empty line of 1-200 chars.
 if (LINE.length < 1 || LINE.length > 200) {
-  throw new Error(`entry line must be 1-200 characters, got ${LINE.length}`);
+  throw new Error(`entry length out of range: ${LINE.length}`);
 }
-if (LINE.includes("\n") || LINE.trim() !== LINE) {
-  throw new Error("entry line must be a single line with no surrounding whitespace");
+if (LINE.trim().length === 0) {
+  throw new Error("entry must not be whitespace-only");
+}
+if (LINE.includes("\n") || LINE.includes("\r")) {
+  throw new Error("entry must be a single line");
+}
+if (LINE !== LINE.trim()) {
+  throw new Error("entry must not have leading or trailing whitespace");
+}
+if (LINE.endsWith("\n")) {
+  throw new Error("entry must not end with a newline");
 }
 
-mkdirSync(OUT_DIR, { recursive: true });
-writeFileSync(OUT_FILE, LINE, "utf8");
-console.log(`wrote ${LINE.length} chars to ${OUT_FILE}`);
+mkdirSync("/output", { recursive: true });
+writeFileSync("/output/entry.txt", LINE, "utf8");
